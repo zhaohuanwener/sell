@@ -6,7 +6,7 @@ var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = process.env.NODE_ENV === 'testing'
   ? require('./webpack.prod.conf')
   : require('./webpack.dev.conf')
-
+var fs = require('fs');
 // default port where dev server listens for incoming traffic
 var port = process.env.PORT || config.dev.port
 // Define HTTP proxies to your custom API backend
@@ -39,18 +39,45 @@ Object.keys(proxyTable).forEach(function (context) {
   if (typeof options === 'string') {
     options = { target: options }
   }
-  app.use(proxyMiddleware(context, options))
-})
+  app.use(proxyMiddleware(context, options));
+});
 
 // handle fallback for HTML5 history API
-app.use(require('connect-history-api-fallback')())
+app.use(require('connect-history-api-fallback')());
 
 // serve webpack bundle output
-app.use(devMiddleware)
+app.use(devMiddleware);
 
 // enable hot-reload and state-preserving
 // compilation error display
-app.use(hotMiddleware)
+app.use(hotMiddleware);
+
+var data = require('../data.json');
+var routes = express.Router();
+
+routes.get('/seller', function (req, res) {
+	res.json({
+		status: 1,
+		data: data.seller
+	});
+});
+
+routes.get('/goods', function (req, res) {
+	res.json({
+		status: 1,
+		data: data.goods
+	});
+});
+
+routes.get('/ratings', function (req, res) {
+	res.json({
+		status: 1,
+		data: data.ratings
+	});
+});
+
+app.use('/api', routes);
+
 
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
